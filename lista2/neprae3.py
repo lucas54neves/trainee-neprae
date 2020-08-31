@@ -49,11 +49,11 @@ def multiplicacao_vetorial(matriz, vetor):
         vetor_resultante.append('')
     
     # Algoritmo de multiplicacao de matriz por um vetor
-    for i in range(3):
-        resultado = ''
-        for j in range(3):
-            resultado += multiplica_strings(matriz[i][j], vetor[j])
-        vetor_resultante[i] = resultado
+    for i in range(len(matriz)):
+        vetor_resultante[i] = ''
+        for j in range(len(matriz[i])):
+            #resultado = soma_strings(resultado, multiplica_strings(matriz[i][j], vetor[j]))
+            vetor_resultante[i] = soma_strings(vetor_resultante[i], multiplica_strings(matriz[i][j], vetor[j]))
     
     # Retorna o vetor
     return vetor_resultante
@@ -84,7 +84,7 @@ def imprime_vetor(vetor):
 
 # Multiplicacao das strings
 def multiplica_strings(string1, string2):
-    if string1 == '0'  or string2 == '0':
+    if string1 == '0' or string2 == '0':
         return ''
     elif string1 == '1' or string2 == '1':
         if string1 == '1':
@@ -92,29 +92,72 @@ def multiplica_strings(string1, string2):
         else:
             return string1
     else:
+        if len(string1) == 0 and len(string2) == 0:
+            return ''
+        if len(string1) == 0:
+            return string2
+        if len(string2) == 0:
+            return string1
         sinal = ''
+        print('#', string1, string2)
         if string1[0] == '-' and string2[0] == '-':
-            string1.replace("-","")
-            string2.replace("-","")
+            string1 = string1[1:]
+            string2 = string2[1:]
         else:
             if string1[0] == '-':
                 sinal = '-'
-                string1.replace("-","")
+                string1 = string1[1:]
             if string2[0] == '-':
                 sinal = '-'
-                string2.replace("-","")
+                string2 = string2[1:]
         
-        print('&&', sinal, string1, string2)
         return (sinal + string1 + string2)
+
+# Soma strings
+def soma_strings(string1, string2):
+    if len(string1) == 0 and len(string2) == 0:
+        return ''
+    if len(string1) == 0:
+        return string2
+    if len(string2) == 0:
+        return string1
+    sinal = '+'
+    if len(string2) > 0:
+        if string2[0] == '-':
+            sinal = '-'
+    return (string1 + sinal + string2)
+
+def multiplica_matrizes(matriz1, matriz2):
+    # Cria a matriz
+    matriz_resultante = []
+    for i in range(3):
+        linha = []
+        for j in range(3):
+            linha.append('')
+        matriz_resultante.append(linha)
+    
+    for i in range(3):
+        for j in range(3):
+            for k in range(3):
+                matriz_resultante[i][j] = soma_strings(matriz_resultante[i][j], multiplica_strings(matriz1[i][k], matriz2[k][j]))
+
+    return matriz_resultante
 
 # Logica do programa
 def main():
     dados = leitura_dados()
     (base0, base1) = converte_bases(dados)
     if base0 < base1:
-        vetor = multiplicacao_vetorial(dados['matrizes'][base0], dados['vetor'])
+        matrizes = dados['matrizes'][base0]
+        for i in range(base0 - 1, base1):
+            matrizes = multiplica_matrizes(matrizes, dados['matrizes'][i-1])
+        vetor = multiplicacao_vetorial(matrizes, dados['vetor'])
     else:
-        vetor = multiplicacao_vetorial(matriz_transposta(dados['matrizes'][base0]), dados['vetor'])
+        matrizes = matriz_transposta(dados['matrizes'][base0])
+        for i in range(base1 - 1, base0):
+            matrizes = multiplica_matrizes(matrizes, matriz_transposta(dados['matrizes'][i-1]))
+        vetor = multiplicacao_vetorial(matrizes, dados['vetor'])
+        vetor = multiplicacao_vetorial(matriz_transposta(dados['matrizes'][base0-1]), dados['vetor'])
     imprime_vetor(vetor)
 
 main()
