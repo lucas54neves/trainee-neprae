@@ -99,7 +99,6 @@ def multiplica_strings(string1, string2):
         if len(string2) == 0:
             return string1
         sinal = ''
-        print('#', string1, string2)
         if string1[0] == '-' and string2[0] == '-':
             string1 = string1[1:]
             string2 = string2[1:]
