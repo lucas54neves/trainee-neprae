@@ -1,133 +1,120 @@
-class Numero:
-    def __init__(self, sinal, valor):
-        self.sinal = sinal
-        self.valor = valor
-    
-    def multiplica(self, outro_numero):
-        # Multiplicacao de sinal
-        if self.sinal == outro_numero.sinal:
-            sinal = '+'
-        else:
-            sinal = '-'
+# Leitura dos dados
+def leitura_dados():
+    ## Quantidade de bases (inercial e moveis) que o sistema mecânico é composto
+    quantidade_bases = int(input())
+    ## Vetor que se deseja realizar a transicao para outra base
+    vetor = input().split()
+    ## Base correspondente ao vetor e a base que se deseja transferir o vetor (na mesma linha)
+    bases = input().split()
+    ## Matrizes de transformacao de coordenadas de uma base para outra (sempre da anterior para posterior)
+    ordem_matrizes = 3
+    matrizes = []
+    for i in range(quantidade_bases - 1):
+        matriz = []
+        for j in range(ordem_matrizes):
+            linha = input().split()
+            matriz.append(linha)
+        matrizes.append(matriz)
+    # Dicionario que retorna com os dados
+    dados = {}
+    dados['quantidade_bases'] = quantidade_bases
+    dados['vetor'] = vetor
+    dados['bases'] = bases
+    dados['matrizes'] = matrizes
+    return dados
 
-        # Multiplicacao por zero
-        if self.valor == '0' or outro_numero.valor == '0':
-            valor = ''
-            sinal = ''
-        # Multiplicacao por 1
-        elif self.valor == '1' or outro_numero.valor == '1':
-            if self.valor == '1' and not outro_numero.valor == '1':
-                valor = outro_numero.valor
-            elif not self.valor == '1' and outro_numero.valor == '1':
-                valor = self.valor
-            else:
-                valor = '1'
-        else:
-            valor = self.valor + outro_numero.valor
-        return Numero(sinal, valor)
+# Retorna a matriz transposta
+def matriz_transposta(matriz):
+    # Cria a matriz
+    matriz_resultante = []
+    for i in range(3):
+        linha = []
+        for j in range(3):
+            linha.append('')
+        matriz_resultante.append(linha)
     
-    def soma(self, outro_numero):
+    # Calcula a matriz transposta
+    for i in range(3):
+        for j in range(3):
+            matriz_resultante[i][j] = matriz[j][i]
+    
+    # Retorna a matriz transposta
+    return matriz_resultante
+
+# Retorna o resultado da multiplicacao de uma matriz por um vetor
+def multiplicacao_vetorial(matriz, vetor):
+    # Cria o vetor que sera retornando
+    vetor_resultante = []
+    for i in range(3):
+        vetor_resultante.append('')
+    
+    # Algoritmo de multiplicacao de matriz por um vetor
+    for i in range(3):
+        resultado = ''
+        for j in range(3):
+            resultado += multiplica_strings(matriz[i][j], vetor[j])
+        vetor_resultante[i] = resultado
+    
+    # Retorna o vetor
+    return vetor_resultante
+
+# Converte as bases para numeros inteiros
+def converte_bases(dados):
+    base0 = dados['bases'][0]
+    base1 = dados['bases'][1]
+
+    if len(base0) == 1:
+        base0 = 0
+    else:
+        base0 = int(base0[1])
+    
+    if len(base1) == 1:
+        base1 = 0
+    else:
+        base1 = int(base1[1])
+    
+    # Retorna as bases em forma de tupla
+    return (base0, base1)
+
+# Imprime um vetor
+def imprime_vetor(vetor):
+    retorno = ''
+    for j in range(3):
+        print(vetor[j])
+
+# Multiplicacao das strings
+def multiplica_strings(string1, string2):
+    if string1 == '0'  or string2 == '0':
+        return ''
+    elif string1 == '1' or string2 == '1':
+        if string1 == '1':
+            return string2
+        else:
+            return string1
+    else:
         sinal = ''
-        valor = self.valor + outro_numero.sinal + outro_numero.valor
-        return Numero(sinal, valor)
-
-class Transformacao:
-    def __init__(self):
-        # Leitura dos dados
-        ## Quantidade de bases (inercial e moveis) que o sistema mecânico é composto
-        self.quantidade_de_bases = int(input())
-        ## Vetor que se deseja realizar a transicao para outra base
-        self.vetor = input().split()
-        ## Base correspondente ao vetor e a base que se deseja transferir o vetor (na mesma linha)
-        self.bases = input().split()
-        ## Matrizes de transformacao de coordenadas de uma base para outra (sempre da anterior para posterior)
-        self.ordem_matrizes = 3
-        self.matrizes = []
-        for i in range(self.quantidade_de_bases - 1):
-            matriz = []
-            for j in range(self.ordem_matrizes):
-                linha = input().split()
-                matriz.append(linha)
-            self.matrizes.append(matriz)
-    
-    def get_matriz_transposta(self, matriz):
-        # Cria a matriz
-        matriz_transposta = []
-        for i in range(self.ordem_matrizes):
-            linha = []
-            for j in range(self.ordem_matrizes):
-                linha.append(0)
-            matriz_transposta.append(linha)
-
-        # Calcula a matriz transposta
-        for i in range(self.ordem_matrizes):
-            for j in range(self.ordem_matrizes):
-                matriz_transposta[i][j] = matriz[j][i]
-        
-        # Retorna a matriz transposta
-        return matriz_transposta
-    
-    def multiplica_vetor_matriz(self, vetor, matriz):
-        matriz_resultante = []
-        for i in range(self.ordem_matrizes):
-            linha = []
-            for j in range(self.ordem_matrizes):
-                linha.append(Numero('', '0'))
-            matriz_resultante.append(linha)
-
-        for i in range(self.ordem_matrizes):
-            for j in range(self.ordem_matrizes):
-                for k in range(self.ordem_matrizes):
-                    print(vetor[i][k])
-                    vet = vetor[i][k]
-                    mat = matriz[k][j]
-                    mult = self.converte_para_numero(vet).multiplica(self.converte_para_numero(mat))
-                    matriz_resultante[i][j] = matriz_resultante[i][j].soma(mult)
-        
-        return matriz_resultante
-
-    # Converte uma string em um numero (sinal e valor)
-    def converte_para_numero(self, palavra):
-        if palavra[0] == '-':
-            return Numero('-', palavra.replace('-',''))
+        if string1[0] == '-' and string2[0] == '-':
+            string1.replace("-","")
+            string2.replace("-","")
         else:
-            return Numero('+', palavra)
-    
-    # Logica do programa
-    def executar(self):
-        base0 = self.bases[0]
-        base1 = self.bases[1]
-
-        if len(base0) == 1:
-            base0 = 0
-        else:
-            base0 = int(base0[1])
+            if string1[0] == '-':
+                sinal = '-'
+                string1.replace("-","")
+            if string2[0] == '-':
+                sinal = '-'
+                string2.replace("-","")
         
-        if len(base1) == 1:
-            base1 = 0
-        else:
-            base1 = int(base1[1])
+        print('&&', sinal, string1, string2)
+        return (sinal + string1 + string2)
 
-        if base0 < base1:
-            matriz = self.multiplica_vetor_matriz(self.vetor[base0], self.matrizes[base1])
-        else:
-            matriz = self.multiplica_vetor_matriz(self.vetor[base0], self.get_matriz_transposta(self.matrizes[base1]))
-        
-        for i in range(self.ordem_matrizes):
-            print(matriz[i])
-
+# Logica do programa
 def main():
-    # Leitura dos dados
-    transformacao = Transformacao()
-    transformacao.executar()
-    '''
-    n1 = Numero('+', 'Teste')
-    n2 = Numero('-', 'Testando')
-    n3 = n1.multiplica(n2)
-    print('{}{}'.format(n3.sinal, n3.valor))
-    print(len('B1'))
-    print(len('II'))
-    print(len('I'))
-    '''
+    dados = leitura_dados()
+    (base0, base1) = converte_bases(dados)
+    if base0 < base1:
+        vetor = multiplicacao_vetorial(dados['matrizes'][base0], dados['vetor'])
+    else:
+        vetor = multiplicacao_vetorial(matriz_transposta(dados['matrizes'][base0]), dados['vetor'])
+    imprime_vetor(vetor)
 
 main()
